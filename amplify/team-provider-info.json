@@ -10,6 +10,16 @@
       "StackName": "amplify-festivalapp-dev-174928",
       "StackId": "arn:aws:cloudformation:us-east-2:929136721877:stack/amplify-festivalapp-dev-174928/e5dca440-97fb-11eb-a011-0237d45f0fe8",
       "AmplifyAppId": "db5euhvf116in"
+    },
+    "categories": {
+      "function": {
+        "festivalappda5784bdPostConfirmation": {
+          "GROUP": "Admin"
+        }
+      },
+      "auth": {
+        "festivalappda5784bd": {}
+      }
     }
   }
 }

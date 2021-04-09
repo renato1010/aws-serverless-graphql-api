@@ -9,7 +9,7 @@ const handler = async (event, _context, callback) => {
         region,
     });
     const adminEmails = ['renatoperezc@gmail.com', 'renatoperezpersonal@gmail.com'];
-    if (adminEmails.indexOf(event.request.userAttributes.email) === -1) {
+    if (!adminEmails.includes(event.request.userAttributes.email)) {
         callback(null, event);
     }
     const groupParams = {

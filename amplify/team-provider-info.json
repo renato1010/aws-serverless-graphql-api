@@ -14,7 +14,9 @@
     "categories": {
       "function": {
         "festivalappda5784bdPostConfirmation": {
-          "GROUP": "Admin"
+          "GROUP": "Admin",
+          "deploymentBucketName": "amplify-festivalapp-dev-174928-deployment",
+          "s3Key": "amplify-builds/festivalappda5784bdPostConfirmation-593546464f7032506778-build.zip"
         }
       },
       "auth": {

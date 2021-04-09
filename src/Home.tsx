@@ -12,7 +12,7 @@ function Home(): JSX.Element {
   async function getStages(): Promise<void> {
     const apiData = (await API.graphql({
       query: listStages,
-      authMode: GRAPHQL_AUTH_MODE.AWS_IAM,
+      authMode: GRAPHQL_AUTH_MODE.API_KEY,
     })) as GraphQLResult<{ listStages: { items: Stage[] } }>;
     const { data } = apiData;
     setLoading(false);

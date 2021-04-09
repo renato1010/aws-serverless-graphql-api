@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 import { getPerformance } from './graphql/queries';
 import { API } from 'aws-amplify';
 import { GRAPHQL_AUTH_MODE, GraphQLResult } from '@aws-amplify/api-graphql/lib-esm';
-import { Performance } from './API';
+import { Performance as PerformanceType } from './API';
 
 function Performance(): JSX.Element {
-  const [performance, setPerformance] = useState<Performance | null | undefined>(null);
+  const [performance, setPerformance] = useState<PerformanceType | null | undefined>(null);
   const [loading, setLoading] = useState(true);
 
   const { id } = useParams<Record<string, string>>();
@@ -17,8 +17,8 @@ function Performance(): JSX.Element {
         const talkInfo = (await API.graphql({
           query: getPerformance,
           variables: { id },
-          authMode: GRAPHQL_AUTH_MODE.AWS_IAM,
-        })) as GraphQLResult<{ getPerformance: Performance }>;
+          authMode: GRAPHQL_AUTH_MODE.AMAZON_COGNITO_USER_POOLS,
+        })) as GraphQLResult<{ getPerformance: PerformanceType }>;
         setPerformance(talkInfo?.data?.getPerformance ?? null);
         setLoading(false);
       } catch (err) {

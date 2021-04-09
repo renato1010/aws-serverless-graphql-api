@@ -3,19 +3,18 @@
 // this is an auto generated file. This will be overwritten
 
 export const listStages = /* GraphQL */ `
-  query ListStages(
-    $filter: ModelStageFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listStages(filter: $filter, limit: $limit, nextToken: $nextToken) {
+  query ListStages($filter: ModelStageFilterInput, $nextToken: String) {
+    listStages(filter: $filter, limit: 500, nextToken: $nextToken) {
       items {
         id
         name
-        createdAt
-        updatedAt
         performances {
-          nextToken
+          items {
+            id
+            time
+            performer
+            description
+          }
         }
       }
       nextToken
@@ -71,11 +70,7 @@ export const getPerformance = /* GraphQL */ `
   }
 `;
 export const listPerformances = /* GraphQL */ `
-  query ListPerformances(
-    $filter: ModelPerformanceFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
+  query ListPerformances($filter: ModelPerformanceFilterInput, $limit: Int, $nextToken: String) {
     listPerformances(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id

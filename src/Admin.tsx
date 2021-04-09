@@ -2,10 +2,18 @@ import { CSSProperties } from 'react';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import { Auth } from 'aws-amplify';
 import { Button } from 'antd';
+import { useHistory } from 'react-router';
 
 function Admin(): JSX.Element {
+  const history = useHistory();
+
   async function signOut(): Promise<void> {
-    await Auth.signOut();
+    try {
+      await Auth.signOut();
+      history.push('/');
+    } catch (error) {
+      console.log(`Error: ${error?.message ?? error.toString()}`);
+    }
   }
   return (
     <div>

@@ -64,3 +64,41 @@ If have no prior exp with **Amplify** watch this [video](https://youtu.be/fWbM5D
 ## convert JS code into Typescript
 
 It is almost the same as in this project: [JS to TS](https://github.com/renato1010/full-serverless-full-typescript#typescript-lambda-functions-backend)
+
+\*\* After all code changes in backend don't forget to deploy the backend
+
+```bash
+  amplify push
+```
+
+## Frontend
+
+Some issues I found when converting React components to Typescript
+
+[At Home](src/Home.tsx): within the `useEffect` we run the getStages function to run the GraphQL Query  
+to do that we use the **API(APIClass)** from 'aws-amplify', but you need to pass an options object and for
+the `authMode` typescript expects an `Enum` typescript type, so will complait if yu pass string 'API_KEY'
+so to fix that you need to pass the `GRAPHQL_AUTH_MODE` enum imported from '@aws-amplify/api-graphql/lib-esm'
+The response from the Query is Generic type passing a self made object type(easier way I found)
+
+```typescript
+import { GRAPHQL_AUTH_MODE, GraphQLResult } from '@aws-amplify/api-graphql/lib-esm';
+
+async function getStages(): Promise<void> {
+  const apiData = (await API.graphql({
+    query: listStages,
+    authMode: GRAPHQL_AUTH_MODE.API_KEY,
+  })) as GraphQLResult<{ listStages: { items: Stage[] } }>;
+  const { data } = apiData;
+  setLoading(false);
+  setStages(data?.listStages?.items ?? []);
+}
+```
+
+Finally run the App:
+
+```bash
+  npm run start
+```
+
+![screenshot](screenshots/screencast_Full_GraphQL_API_2021-04-11.gif)

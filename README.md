@@ -1,46 +1,66 @@
-# Getting Started with Create React App
+# AWS Serverless GraphQL API Functions, Full Typescript and Node SDK V3
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project will deal with a GraphQL API, created from a basic [Schema](amplify/backend/api/festivalapp/schema.graphql)  
+its a more advanced that the single Entity/Model from previos project: [AWS Amplify GraphQL CRUD](https://github.com/renato1010/aws-amplify-graphql-crud).
 
-## Available Scripts
+Here we relate two Entities/Models Stage and Performance, start stablishing a more sophisticated Authorization scheme  
+using for that a **GraphQL Transform/Directive: @auth** something like that:
 
-In the project directory, you can run:
+```graphql
+type Stage
+  @model
+  @auth(rules: [{ allow: public, operations: [read] }, { allow: groups, groups: ["Admin"] }]) {
+  id: ID!
+  name: String!
+  performances: [Performance] @connection(keyName: "byStageId", fields: ["id"])
+}
+```
 
-### `npm start`
+Those rules mean: that for **Stage** to list/read the resource the user will need an **API KEY** and for the rest of operations
+the user will need to belong to an specific group in a Cognito User Pool, this case "Admin" group. The process of adding a user to
+a group is handled by our [Auth function: add-to-groups](amplify/backend/function/festivalappda5784bdPostConfirmation/src/add-to-group.ts)  
+at the end the second rule means: Update, Delete only for "Admin" users.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Even more interesting is the way to inter-relate the two Models (Stage/Performance), the second Model(Performance)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```graphql
+type Performance
+  @model
+  @key(name: "byStageId", fields: ["performanceStageId"])
+  @auth(rules: [{ allow: public, operations: [read] }, { allow: groups, groups: ["Admin"] }]) {
+  id: ID!
+  performanceStageId: ID!
+  productID: ID
+  performer: String!
+  imageUrl: String
+  description: String!
+  time: String
+  stage: Stage @connection
+}
+```
 
-### `npm test`
+is related to Stage like this:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Stage** resolver uses stage ID to retrieve info from Stage table in database.
+2. Field **performances** on Stage type object will have their own resolver, and will use stage ID to retrieve  
+   related _performances_ by querying the database using the secondary index created by **@key** directive
 
-### `npm run build`
+**GraphQL Transform: @connection:** part of [GraphQL Transform library](https://docs.amplify.aws/lib/graphqlapi/getting-started/q/platform/js#updating-your-graphql-schema) these directive allow you to "decorate" your Schema  
+and pull additional functionality
+@connection stablish relationships between Stage and Peformance  
+and generates the necessary resolvers(Will require a little tweak)  
+**@connection:** Makes really simple to configure custom index structures(at DynamoDB tables) for @model types.  
+in our case will set _stage ID_ as secondary key on the _performance_ table. And will be able to request **stages**  
+and their corresponding **performances** in a single GraphQL query.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Credits
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+This example and code is based on book **Full Stack Serverless** by [Nader Dabit](https://twitter.com/dabit3)  
+I changed the project a bit using `Typescript` insted of `JavaScript` on code examples, and other minor changes  
+You can check the original code [here](https://github.com/dabit3/full-stack-serverless-code/tree/master/appsync-in-depth). If you want to run the code you'll need to install Amplify and get your own  
+`src/aws-exports.js` file that you will need to configure the project  
+If have no prior exp with **Amplify** watch this [video](https://youtu.be/fWbM5DLh25U) to learn how to configure the Amplify CLI
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## convert JS code into Typescript
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+It is almost the same as in this project: [JS to TS](https://github.com/renato1010/full-serverless-full-typescript#typescript-lambda-functions-backend)
